@@ -24,6 +24,9 @@ public class Book {
     @Column(name = "price",nullable = false)
     private Float price;
 
+    @Column(name = "genre",nullable = false)
+    private String genre;
+
     @Column(name = "publish_date",nullable = false)
     private Timestamp publishDate;
 
