@@ -1,0 +1,22 @@
+services:
+  db:
+    env_file:
+      - .env
+    container_name: bookstore-postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: ${USERNAME}
+      POSTGRES_PASSWORD: ${PASSWORD}
+      PGDATA: /data/postgres
+    volumes:
+      - db:/data/postgres
+    ports:
+      - 5432:5432
+    networks:
+        - db
+    restart: unless-stopped
+networks:
+  db:
+    driver: bridge
+volumes:
+  db:
