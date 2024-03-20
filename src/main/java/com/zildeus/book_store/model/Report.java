@@ -28,6 +28,6 @@ public class Report {
     private Boolean read;
 
     @ManyToOne
-    @JoinColumn(name = "issuer",referencedColumnName = "id")
-    private ApplicationUser issuer;
+    @JoinColumn(name = "book",referencedColumnName = "id")
+    private Book book;
 }

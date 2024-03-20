@@ -29,8 +29,4 @@ public class Review {
     @ManyToOne
     @JoinColumn(name = "book",referencedColumnName = "id")
     private Book book;
-
-    @ManyToOne
-    @JoinColumn(name = "reviewer",referencedColumnName = "id")
-    private ApplicationUser reviewer;
 }

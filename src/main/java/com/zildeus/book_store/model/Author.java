@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Data
@@ -20,8 +21,8 @@ public class Author {
     @Column(name = "name",nullable = false,unique = true)
     private String name;
 
-    @Column(name = "year_of_birth")
-    private Integer year;
+    @Column(name = "birthday")
+    private Timestamp birthDay;
 
     @Column(name = "location")
     private String  location;

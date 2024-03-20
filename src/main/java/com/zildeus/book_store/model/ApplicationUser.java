@@ -40,6 +40,6 @@ public class ApplicationUser {
     @Column(name = "type",nullable = false)
     private UserType type;
 
-    @OneToMany(mappedBy = "reviewer")
-    List<Review> reviews;
+    //@OneToMany(mappedBy = "reviewer")
+    //List<Review> reviews;
 }

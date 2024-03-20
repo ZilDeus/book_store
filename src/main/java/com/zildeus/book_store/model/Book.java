@@ -36,6 +36,9 @@ public class Book {
     @OneToMany(mappedBy = "book")
     private List<Review> reviews;
 
+    @OneToMany(mappedBy = "book")
+    private List<Report> reports;
+
     @ManyToOne
     @JoinColumn(name = "author",referencedColumnName = "id")
     private Author author;
