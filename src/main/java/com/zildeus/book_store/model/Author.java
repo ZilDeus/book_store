@@ -1,9 +1,11 @@
-package com.zildeus.application.model;
+package com.zildeus.book_store.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -23,4 +25,8 @@ public class Author {
 
     @Column(name = "location")
     private String  location;
+
+    @OneToMany(mappedBy = "author")
+    @Column(name = "authored_books")
+    private List<Book> books;
 }

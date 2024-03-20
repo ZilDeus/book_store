@@ -1,4 +1,4 @@
-package com.zildeus.application.model;
+package com.zildeus.book_store.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -29,13 +30,16 @@ public class ApplicationUser {
     @Column(name = "balance",nullable = false)
     private Float balance;
 
-    @Column(name = "creation_date",nullable = false)
+    @Column(name = "creation_date",columnDefinition = "timestamp(6) without time zone default NOW()")
     private Timestamp creation;
 
-    @Column(name = "deletion_date")
+    @Column(name = "deletion_date",nullable = false)
     private Timestamp deletion;
 
     @Enumerated(value = EnumType.STRING)
     @Column(name = "type",nullable = false)
     private UserType type;
+
+    @OneToMany(mappedBy = "reviewer")
+    List<Review> reviews;
 }

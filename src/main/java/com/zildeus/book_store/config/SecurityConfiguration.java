@@ -1,4 +1,4 @@
-package com.zildeus.application.config;
+package com.zildeus.book_store.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
