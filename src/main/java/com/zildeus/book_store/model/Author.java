@@ -18,11 +18,11 @@ public class Author {
     @GeneratedValue
     private Long id;
 
-    @Column(name = "name",nullable = false,unique = true)
+    @Column(name = "title",nullable = false,unique = true)
     private String name;
 
-    @Column(name = "birthday")
-    private Timestamp birthDay;
+    @Column(name = "birth_year")
+    private Integer birthYear;
 
     @Column(name = "location")
     private String  location;

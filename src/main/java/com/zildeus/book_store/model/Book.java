@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -18,7 +19,7 @@ public class Book {
     @GeneratedValue
     private Long id;
 
-    @Column(name = "title",nullable = false,unique = true)
+    @Column(name = "title",nullable = false)
     private String title;
 
     @Column(name = "price",nullable = false)
@@ -27,10 +28,11 @@ public class Book {
     @Column(name = "genre",nullable = false)
     private String genre;
 
-    @Column(name = "publish_date",nullable = false)
-    private Timestamp publishDate;
+    @Column(name = "publish_year",nullable = false)
+    private Integer publishYear;
 
-    @Column(name = "upload_date",columnDefinition = "timestamp(6) without time zone default NOW()")
+    @CreationTimestamp
+    @Column(name = "upload_date")
     private Timestamp uploadDate;
 
     @OneToMany(mappedBy = "book")

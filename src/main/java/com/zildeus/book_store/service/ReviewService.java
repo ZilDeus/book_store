@@ -25,13 +25,14 @@ public class ReviewService {
     }
 
     public List<Review> GetBookReviews(String bookTitle){
-        return bookService.GetBook(bookTitle).getReviews();
+        return bookService.GetBookObject(bookTitle).getReviews();
     }
     public void PostReview(ReviewDto r,String bookTitle)
     {
-        Book book = bookService.GetBook(bookTitle);
+        Book book = bookService.GetBookObject(bookTitle);
         Review review = new Review();
         review.setRating(r.rating());
+        review.setBook(book);
         review.setReview(r.review());
     }
 }

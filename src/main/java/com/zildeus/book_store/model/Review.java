@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 
@@ -23,7 +24,8 @@ public class Review {
     @Column(name = "rating",nullable = false)
     private Float rating;
 
-    @Column(name = "date",columnDefinition = "timestamp(6) without time zone default NOW()")
+    @CreationTimestamp
+    @Column(name = "date")
     private Timestamp postedDate;
 
     @ManyToOne

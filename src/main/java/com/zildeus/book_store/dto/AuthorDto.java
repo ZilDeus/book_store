@@ -1,11 +1,12 @@
 package com.zildeus.book_store.dto;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 public record AuthorDto(
         String name,
-        Timestamp birthday,
+        Integer birthYear,
         String location,
-        Float rating
+        List<String> books
 ) {
 }

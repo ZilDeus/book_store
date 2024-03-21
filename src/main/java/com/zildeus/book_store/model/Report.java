@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 
@@ -21,7 +22,8 @@ public class Report {
     @Column(name = "description",nullable = false)
     private String desc;
 
-    @Column(name = "issued_at",columnDefinition = "timestamp(6) without time zone default NOW()")
+    @CreationTimestamp
+    @Column(name = "issued_at")
     private Timestamp issuedAt;
 
     @Column(name = "read",columnDefinition = "boolean default false")

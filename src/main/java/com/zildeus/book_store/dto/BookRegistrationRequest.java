@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 public record BookRegistrationRequest(
         String title,
         String genre,
-        Timestamp published_at,
+        Integer published_at,
         Float price
 ) {
 }

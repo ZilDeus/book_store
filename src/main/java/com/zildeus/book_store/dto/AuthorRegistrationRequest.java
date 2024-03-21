@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 
 public record AuthorRegistrationRequest(
         String name,
-        Timestamp birthday,
+        Integer birthYear,
         String location
 ) {
 }
