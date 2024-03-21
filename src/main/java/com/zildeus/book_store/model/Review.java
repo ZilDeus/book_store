@@ -18,11 +18,11 @@ public class Review {
     @GeneratedValue
     private Long id;
 
-    @Column(name = "review",nullable = false)
+    @Column(name = "review")
     private String review;
 
     @Column(name = "rating",nullable = false)
-    private Float rating;
+    private Integer rating;
 
     @CreationTimestamp
     @Column(name = "date")
@@ -31,4 +31,7 @@ public class Review {
     @ManyToOne
     @JoinColumn(name = "book",referencedColumnName = "id")
     private Book book;
+    @ManyToOne
+    @JoinColumn(name = "reviewer",referencedColumnName = "id")
+    private ApplicationUser reviewer;
 }

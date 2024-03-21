@@ -20,12 +20,16 @@ public class ReviewService {
     private final ReviewRepository repository;
     private final BookService bookService;
 
-    public List<Review> GetReviews(){
-        return repository.findAll();
+    public List<ReviewDto> GetReviews(){
+        return repository.findAll()
+                .stream().map(ReviewDto::of)
+                .toList();
     }
 
-    public List<Review> GetBookReviews(String bookTitle){
-        return bookService.GetBookObject(bookTitle).getReviews();
+    public List<ReviewDto> GetBookReviews(String bookTitle){
+        return bookService.GetBookObject(bookTitle).getReviews()
+                .stream().map(ReviewDto::of)
+                .toList();
     }
     public void PostReview(ReviewDto r,String bookTitle)
     {

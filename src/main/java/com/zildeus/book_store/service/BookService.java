@@ -1,6 +1,5 @@
 package com.zildeus.book_store.service;
 
-import com.zildeus.book_store.dto.AuthorDto;
 import com.zildeus.book_store.dto.BookDto;
 import com.zildeus.book_store.dto.BookRegistrationRequest;
 import com.zildeus.book_store.exceptions.DuplicateResourceException;
@@ -8,6 +7,7 @@ import com.zildeus.book_store.exceptions.ResourceNotFoundException;
 import com.zildeus.book_store.model.Author;
 import com.zildeus.book_store.model.Book;
 import com.zildeus.book_store.repository.BookRepositroy;
+import com.zildeus.book_store.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,18 +18,11 @@ import java.util.List;
 public class BookService {
     private final BookRepositroy repository;
     private final AuthorService authorService;
+    private final ReviewRepository reviewRepository;
     public List<BookDto> GetBooks(){
         return repository.findAll()
                 .stream().map(book ->
-                    new BookDto(
-                            book.getTitle()
-                            ,book.getGenre()
-                            , book.getPublishYear()
-                            , book.getUploadDate()
-                            ,book.getAuthor().getName()
-                            ,book.getPrice()
-                            ,0.0f
-                    )
+                        BookDto.of(book, reviewRepository.GetAverageBookRating(book.getId()))
                 ).toList();
     }
     public Book GetBookObject(String title){
@@ -40,14 +33,7 @@ public class BookService {
     }
     public BookDto GetBook(String title){
         Book book = GetBookObject(title);
-        return new BookDto(
-                book.getTitle()
-                ,book.getGenre()
-                , book.getPublishYear()
-                , book.getUploadDate()
-                ,book.getAuthor().getName()
-                ,book.getPrice()
-                ,0.0f);
+        return BookDto.of(book, reviewRepository.GetAverageBookRating(book.getId()));
     }
 
     public  void AddBook(BookRegistrationRequest registrationRequest, String authorName){

@@ -1,5 +1,6 @@
 package com.zildeus.book_store.controller;
 
+import com.zildeus.book_store.dto.ReviewDto;
 import com.zildeus.book_store.model.Review;
 import com.zildeus.book_store.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ import java.util.List;
 public class ReviewController {
     private final ReviewService service;
     @GetMapping()
-    public List<Review> GetAllReviews(){
+    public List<ReviewDto> GetAllReviews(){
         return service.GetReviews();
     }
 }

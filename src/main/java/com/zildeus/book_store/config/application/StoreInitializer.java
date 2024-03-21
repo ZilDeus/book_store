@@ -2,8 +2,10 @@ package com.zildeus.book_store.config.application;
 
 import com.zildeus.book_store.model.Author;
 import com.zildeus.book_store.model.Book;
+import com.zildeus.book_store.model.Review;
 import com.zildeus.book_store.repository.AuthorRepository;
 import com.zildeus.book_store.repository.BookRepositroy;
+import com.zildeus.book_store.repository.ReviewRepository;
 import net.datafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -14,13 +16,16 @@ import java.util.List;
 
 @Component
 public class StoreInitializer implements CommandLineRunner {
-    Boolean start = false;
+    Boolean start = true;
     @Autowired
     private  AuthorRepository authorRepository;
     @Autowired
     private BookRepositroy bookRepositroy;
+    @Autowired
+    private ReviewRepository reviewRepository;
     public record FakeAuthors(String name, Integer birthYear, String location){ }
     public record FakeBook(String title, String genre, Integer publishYear, Float price, Integer authorId){}
+    public record FakeReview(String review, Integer rating,Integer bookId){}
     @Override
     //TODO: ENTER DUMB DATA
     public void run(String... args) throws Exception {
@@ -42,9 +47,31 @@ public class StoreInitializer implements CommandLineRunner {
             book.setAuthor(authors.get(b.authorId%authors.size()));
             return book;
         }).toList();
+        List<Review> reviews =  GenerateFakeReviews(180).stream().map(r-> {
+            Review review = new Review();
+            review.setReview(r.review);
+            review.setRating(r.rating);
+            review.setBook(books.get(r.bookId%books.size()));
+            return review;
+        }).toList();
         authorRepository.saveAllAndFlush(authors);
         bookRepositroy.saveAllAndFlush(books);
+        //reviewRepository.saveAllAndFlush(reviews);
     }
+    public List<FakeReview> GenerateFakeReviews(int limit) throws Exception {
+        List<FakeReview> reviews = new ArrayList<>();
+        Faker faker = new Faker();
+        while (--limit>=0){
+            reviews.add(
+                    new FakeReview(faker.text().text(0,30)
+                            ,faker.number().numberBetween(0,10)
+                            ,faker.number().positive()
+                    )
+            );
+        }
+        return reviews;
+    }
+
     public List<FakeAuthors> GenerateFakeAuthors(int limit) throws Exception {
         List<FakeAuthors> authors = new ArrayList<>();
         Faker faker = new Faker();

@@ -29,14 +29,7 @@ public class AuthorService {
     }
 
     public List<AuthorDto> GetAuthors(){
-        return repository.findAll().stream().map(
-                author -> new AuthorDto(
-                        author.getName(),
-                        author.getBirthYear(),
-                        author.getLocation(),
-                        author.getBooks().stream().map(Book::getTitle).toList()
-                )
-        ).toList();
+        return repository.findAll().stream().map(AuthorDto::of).toList();
     }
     public Author GetAuthorObject(String name){
         return repository.findByName(name)
@@ -46,11 +39,6 @@ public class AuthorService {
     }
     public AuthorDto GetAuthor(String name){
         Author author = GetAuthorObject(name);
-        return new AuthorDto(
-                author.getName(),
-                author.getBirthYear(),
-                author.getLocation(),
-                author.getBooks().stream().map(Book::getTitle).toList()
-        );
+        return AuthorDto.of(author);
     }
 }

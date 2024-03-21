@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -30,7 +31,7 @@ public class ApplicationUser {
     @Column(name = "balance",nullable = false)
     private Float balance;
 
-    @Column(name = "creation_date",columnDefinition = "timestamp(6) without time zone default NOW()")
+    @CreationTimestamp
     private Timestamp creation;
 
     @Column(name = "deletion_date",nullable = false)
@@ -39,7 +40,4 @@ public class ApplicationUser {
     @Enumerated(value = EnumType.STRING)
     @Column(name = "type",nullable = false)
     private UserType type;
-
-    //@OneToMany(mappedBy = "reviewer")
-    //List<Review> reviews;
 }

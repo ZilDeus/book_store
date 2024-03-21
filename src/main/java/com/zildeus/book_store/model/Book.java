@@ -1,10 +1,13 @@
 package com.zildeus.book_store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.zildeus.book_store.repository.ReviewRepository;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Timestamp;
 import java.util.List;
