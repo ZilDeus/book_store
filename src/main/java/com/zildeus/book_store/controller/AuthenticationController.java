@@ -24,7 +24,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(authService.GetAccessTokenFromRefreshToken(authentication,response));
     }
     @PostMapping("refresh-token")
-    ResponseEntity<?> SignInWithToken(Authentication authentication,HttpServletResponse response){
+    ResponseEntity<?> RefreshToken(Authentication authentication,HttpServletResponse response){
         return ResponseEntity.ok(authService.GetAccessTokenFromRefreshToken(authentication,response));
     }
     @PostMapping("sign-up")

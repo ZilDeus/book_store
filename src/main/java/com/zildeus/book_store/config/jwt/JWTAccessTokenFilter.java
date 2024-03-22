@@ -30,20 +30,23 @@ public class JWTAccessTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
+            if(SecurityContextHolder.getContext().getAuthentication()!=null) {
+                filterChain.doFilter(request,response);
+                return;
+            }
             Jwt token = GetTokenFromHeader(request);
             if(token==null)
             {
                 filterChain.doFilter(request,response);
                 return;
             }
-            if(utils.IsTokenExpired(token)){
+            if (!utils.IsTokenExpired(token)&&detailsService.loadUserByUsername(token.getSubject())!=null) {
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
                 UserDetails userDetails = detailsService.loadUserByUsername(token.getSubject());
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
                         userDetails.getAuthorities()
-
                 );
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 context.setAuthentication(authenticationToken);

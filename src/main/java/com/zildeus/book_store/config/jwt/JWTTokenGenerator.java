@@ -31,8 +31,6 @@ public class JWTTokenGenerator {
         return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
     public String GenerateRefreshToken(Authentication authentication) {
-
-
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("zildeus")
                 .issuedAt(Instant.now())
@@ -55,7 +53,7 @@ public class JWTTokenGenerator {
         if (roles.contains("Moderator"))
             perms.addAll(List.of("APPROVE_REPORT","BLOCK","POST"));
         if (roles.contains("Admin"))
-            perms.addAll(List.of("DELETE","POST"));
+            perms.addAll(List.of("ADD_BALANCE","DELETE","POST"));
         return String.join(" ",perms);
     }
 }

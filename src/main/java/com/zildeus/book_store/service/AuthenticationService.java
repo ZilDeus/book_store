@@ -70,7 +70,7 @@ public class AuthenticationService {
             SaveRefreshToken(user,refreshToken);
             CreateRefreshTokenCookie(response,refreshToken);
             return new AuthResponseDto(accessToken,
-                    15*24*60*60,
+                    5*60,
                     TokenType.Bearer,
                     user.getUsername()
             );

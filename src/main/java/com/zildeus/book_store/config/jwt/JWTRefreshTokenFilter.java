@@ -25,17 +25,21 @@ public class JWTRefreshTokenFilter extends OncePerRequestFilter {
     private final JwtDecoder decoder;
     private final JWTUtils utils;
     private final UserDetailsService detailsService;
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
+            if(SecurityContextHolder.getContext().getAuthentication()!=null)
+            {
+                filterChain.doFilter(request,response);
+                return;
+            }
             Jwt token = GetTokenFromHeader(request);
             if(token==null)
             {
                 filterChain.doFilter(request,response);
                 return;
             }
-            if(utils.IsTokenExpired(token)&&utils.IsRefreshTokenInDatabase(token.getTokenValue())){
+            if(!utils.IsTokenExpired(token)&&detailsService.loadUserByUsername(token.getSubject())!=null&&utils.IsRefreshTokenInDatabase(token.getTokenValue())){
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
                 UserDetails userDetails = detailsService.loadUserByUsername(token.getSubject());
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

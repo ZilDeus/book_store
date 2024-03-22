@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -34,6 +36,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
+@EnableMethodSecurity
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
@@ -42,6 +45,21 @@ public class SecurityConfiguration {
     private final JWTUtils jwtUtils;
     private final RsaKeyPair rsaKeyPair;
     @Order(1)
+    @Bean
+    SecurityFilterChain signInFilterChain(HttpSecurity http) throws Exception{
+        return http.securityMatcher(new AntPathRequestMatcher("/sign-in/**"))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth->auth.anyRequest().authenticated())
+                .userDetailsService(userDetailsService)
+                .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(e
+                        ->  e.authenticationEntryPoint((request, response, authException)
+                        ->  response.sendError(HttpServletResponse.SC_UNAUTHORIZED,authException.getMessage()))
+                )
+                .httpBasic(withDefaults())
+                .build();
+    }
+    @Order(2)
     @Bean
     SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception{
         return http
@@ -59,21 +77,6 @@ public class SecurityConfiguration {
                 .httpBasic(withDefaults())
                 .build();
     }
-    @Order(2)
-    @Bean
-    SecurityFilterChain signInFilterChain(HttpSecurity http) throws Exception{
-        return http.securityMatcher(new AntPathRequestMatcher("/sign-in/**"))
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth->auth.anyRequest().authenticated())
-                .userDetailsService(userDetailsService)
-                .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(e
-                        ->  e.authenticationEntryPoint((request, response, authException)
-                        ->  response.sendError(HttpServletResponse.SC_UNAUTHORIZED,authException.getMessage()))
-                )
-                .httpBasic(withDefaults())
-                .build();
-    }
     @Order(3)
     @Bean
     SecurityFilterChain signUpFilterChain(HttpSecurity http) throws  Exception{
@@ -82,22 +85,6 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((auth->auth.anyRequest().permitAll()))
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .build();
-    }
-    @Order(3)
-    @Bean
-    SecurityFilterChain refreshTokenSecurityFilterChain(HttpSecurity http) throws Exception{
-        return http.securityMatcher(new AntPathRequestMatcher("refresh-token"))
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth->auth.anyRequest().authenticated())
-                .oauth2ResourceServer(auth2->auth2.jwt(withDefaults()))
-                .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JWTRefreshTokenFilter(jwtDecoder(),jwtUtils,userDetailsService), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(e
-                        ->  e.authenticationEntryPoint((request, response, authException)
-                        ->  response.sendError(HttpServletResponse.SC_UNAUTHORIZED,authException.getMessage()))
-                )
-                .httpBasic(withDefaults())
                 .build();
     }
     @Bean
