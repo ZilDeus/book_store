@@ -10,14 +10,6 @@ public record AuthorDto(
         String name,
         Integer birthYear,
         String location,
-        List<String> books
+        List<BookDto> books
 ) {
-    static public AuthorDto of(Author author){
-        return new AuthorDto(
-                author.getName(),
-                author.getBirthYear(),
-                author.getLocation(),
-                author.getBooks().stream().map(Book::getTitle).toList()
-        );
-    }
 }

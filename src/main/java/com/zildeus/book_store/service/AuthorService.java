@@ -3,6 +3,7 @@ package com.zildeus.book_store.service;
 import com.zildeus.book_store.dto.AuthorDto;
 import com.zildeus.book_store.exceptions.DuplicateResourceException;
 import com.zildeus.book_store.exceptions.ResourceNotFoundException;
+import com.zildeus.book_store.mapper.IMapper;
 import com.zildeus.book_store.model.Author;
 import com.zildeus.book_store.model.Book;
 import com.zildeus.book_store.repository.AuthorRepository;
@@ -15,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthorService {
     private final AuthorRepository repository;
+    private final IMapper mapper;
 
     public void RegisterAuthor(AuthorDto registrationRequest)
     {
@@ -29,7 +31,7 @@ public class AuthorService {
     }
 
     public List<AuthorDto> GetAuthors(){
-        return repository.findAll().stream().map(AuthorDto::of).toList();
+        return repository.findAll().stream().map(mapper::AuthorDtoFromAuthor).toList();
     }
     public Author GetAuthorObject(String name){
         return repository.findByName(name)
@@ -39,6 +41,6 @@ public class AuthorService {
     }
     public AuthorDto GetAuthor(String name){
         Author author = GetAuthorObject(name);
-        return AuthorDto.of(author);
+        return mapper.AuthorDtoFromAuthor(author);
     }
 }

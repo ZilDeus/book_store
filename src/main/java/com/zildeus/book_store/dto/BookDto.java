@@ -10,18 +10,7 @@ public record BookDto(
         Integer published_at,
         Timestamp posted_at,
         String author,
-        Float rating,
-        Float price
+        Float price,
+        Float rating
 ) {
-    static public BookDto of(Book book,Float averageRating){
-        return new BookDto(
-                book.getTitle()
-                ,book.getGenre()
-                ,book.getPublishYear()
-                ,book.getUploadDate()
-                ,book.getAuthor().getName()
-                ,averageRating
-                ,book.getPrice()
-        );
-    }
 }

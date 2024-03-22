@@ -3,8 +3,9 @@ package com.zildeus.book_store.dto;
 import java.sql.Timestamp;
 
 public record ReportDto(
-        String bookTitle,
+        BookDto book,
         String description,
-        Timestamp posted_at
+        Timestamp posted_at,
+        UserDto user
 ) {
 }
