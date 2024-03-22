@@ -2,6 +2,7 @@ package com.zildeus.book_store.service;
 
 import com.zildeus.book_store.dto.ReviewDto;
 import com.zildeus.book_store.exceptions.ResourceNotFoundException;
+import com.zildeus.book_store.mapper.IMapper;
 import com.zildeus.book_store.model.ApplicationUser;
 import com.zildeus.book_store.model.Author;
 import com.zildeus.book_store.model.Book;
@@ -19,16 +20,17 @@ import java.util.List;
 public class ReviewService {
     private final ReviewRepository repository;
     private final BookService bookService;
+    private final IMapper mapper;
 
     public List<ReviewDto> GetReviews(){
         return repository.findAll()
-                .stream().map(ReviewDto::of)
+                .stream().map(mapper::ReviewDtoFromReview)
                 .toList();
     }
 
     public List<ReviewDto> GetBookReviews(String bookTitle){
         return bookService.GetBookObject(bookTitle).getReviews()
-                .stream().map(ReviewDto::of)
+                .stream().map(mapper::ReviewDtoFromReview)
                 .toList();
     }
     public void PostReview(ReviewDto r,String bookTitle)

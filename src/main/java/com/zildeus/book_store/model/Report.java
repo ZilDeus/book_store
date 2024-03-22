@@ -32,4 +32,8 @@ public class Report {
     @ManyToOne
     @JoinColumn(name = "book",referencedColumnName = "id")
     private Book book;
+
+    @ManyToOne
+    @JoinColumn(name = "issuer",referencedColumnName = "id")
+    private ApplicationUser user;
 }

@@ -8,14 +8,7 @@ public record ReviewDto(
         String reviewer,
         Integer rating,
         String review,
-        Timestamp posted_at
+        Timestamp posted_at,
+        BookDto book
 ) {
-    static public ReviewDto of(Review r){
-        return new ReviewDto(
-                r.getReviewer().getUsername(),
-                r.getRating(),
-                r.getReview(),
-                r.getPostedDate()
-        );
-    }
 }
