@@ -23,14 +23,13 @@ public class AuthenticationController {
     ResponseEntity<?> SignIn(Authentication authentication,HttpServletResponse response){
         return ResponseEntity.ok(authService.GetAccessTokenFromRefreshToken(authentication,response));
     }
-    @PostMapping("sign-in/token")
+    @PostMapping("refresh-token")
     ResponseEntity<?> SignInWithToken(Authentication authentication,HttpServletResponse response){
         return ResponseEntity.ok(authService.GetAccessTokenFromRefreshToken(authentication,response));
     }
     @PostMapping("sign-up")
     ResponseEntity<?> SignUp(@RequestBody UserRegistrationRequest registrationRequest,
                              BindingResult bindingResult, HttpServletResponse response){
-        System.out.println("signing-up a new user"+registrationRequest);
         if(bindingResult.hasErrors()) {
             return ResponseEntity.badRequest()
                     .body(bindingResult.getAllErrors()

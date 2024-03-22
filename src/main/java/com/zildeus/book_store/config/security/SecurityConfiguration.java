@@ -25,6 +25,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
+import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -47,19 +49,45 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((auth)->auth.anyRequest().authenticated())
-                .userDetailsService(userDetailsService)
+                .oauth2ResourceServer(auth2->auth2.jwt(withDefaults()))
+                .addFilterBefore(new JWTAccessTokenFilter(jwtDecoder(),jwtUtils,userDetailsService), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement((session)->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> {
-                    ex.authenticationEntryPoint((request, response, authException) ->
-                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage()));
+                    ex.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint());
+                    ex.accessDeniedHandler(new BearerTokenAccessDeniedHandler());
                 })
                 .httpBasic(withDefaults())
                 .build();
     }
     @Order(2)
     @Bean
-    SecurityFilterChain signInWithTokenFilterChain(HttpSecurity http) throws Exception{
-        return http.securityMatcher(new AntPathRequestMatcher("/sign-in/token"))
+    SecurityFilterChain signInFilterChain(HttpSecurity http) throws Exception{
+        return http.securityMatcher(new AntPathRequestMatcher("/sign-in/**"))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth->auth.anyRequest().authenticated())
+                .userDetailsService(userDetailsService)
+                .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(e
+                        ->  e.authenticationEntryPoint((request, response, authException)
+                        ->  response.sendError(HttpServletResponse.SC_UNAUTHORIZED,authException.getMessage()))
+                )
+                .httpBasic(withDefaults())
+                .build();
+    }
+    @Order(3)
+    @Bean
+    SecurityFilterChain signUpFilterChain(HttpSecurity http) throws  Exception{
+        return http.securityMatcher(new AntPathRequestMatcher("sign-up/**"))
+                .cors(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests((auth->auth.anyRequest().permitAll()))
+                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .build();
+    }
+    @Order(3)
+    @Bean
+    SecurityFilterChain refreshTokenSecurityFilterChain(HttpSecurity http) throws Exception{
+        return http.securityMatcher(new AntPathRequestMatcher("refresh-token"))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth->auth.anyRequest().authenticated())
                 .oauth2ResourceServer(auth2->auth2.jwt(withDefaults()))
@@ -72,32 +100,6 @@ public class SecurityConfiguration {
                 .httpBasic(withDefaults())
                 .build();
     }
-    @Order(3)
-    @Bean
-    SecurityFilterChain signInFilterChain(HttpSecurity http) throws Exception{
-        return http.securityMatcher(new AntPathRequestMatcher("/sign-in/**"))
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth->auth.anyRequest().authenticated())
-                .userDetailsService(userDetailsService)
-                .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(e
-                        ->  e.authenticationEntryPoint((request, response, authException)
-                                ->  response.sendError(HttpServletResponse.SC_UNAUTHORIZED,authException.getMessage()))
-                )
-                .httpBasic(withDefaults())
-                .build();
-    }
-    @Order(4)
-    @Bean
-    SecurityFilterChain signUpFilterChain(HttpSecurity http) throws  Exception{
-        return http.securityMatcher(new AntPathRequestMatcher("sign-up/**"))
-                .cors(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((auth->auth.anyRequest().permitAll()))
-                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .build();
-    }
-
     @Bean
     PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
