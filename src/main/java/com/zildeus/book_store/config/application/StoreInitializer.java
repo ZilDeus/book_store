@@ -16,7 +16,7 @@ import java.util.List;
 
 @Component
 public class StoreInitializer implements CommandLineRunner {
-    Boolean start = true;
+    Boolean start = false;
     @Autowired
     private  AuthorRepository authorRepository;
     @Autowired
@@ -54,8 +54,8 @@ public class StoreInitializer implements CommandLineRunner {
             review.setBook(books.get(r.bookId%books.size()));
             return review;
         }).toList();
-        authorRepository.saveAllAndFlush(authors);
-        bookRepositroy.saveAllAndFlush(books);
+        //authorRepository.saveAllAndFlush(authors);
+        //bookRepositroy.saveAllAndFlush(books);
         //reviewRepository.saveAllAndFlush(reviews);
     }
     public List<FakeReview> GenerateFakeReviews(int limit) throws Exception {
