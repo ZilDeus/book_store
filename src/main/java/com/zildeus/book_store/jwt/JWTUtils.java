@@ -1,18 +1,13 @@
-package com.zildeus.book_store.config.jwt;
+package com.zildeus.book_store.jwt;
 
-import com.zildeus.book_store.config.user.ApplicationUserDetailsService;
-import com.zildeus.book_store.model.ApplicationUser;
+import com.zildeus.book_store.service.ApplicationUserDetailsService;
 import com.zildeus.book_store.repository.JWTRefreshTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.Objects;

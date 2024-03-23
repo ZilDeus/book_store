@@ -1,6 +1,5 @@
 package com.zildeus.book_store.service;
 
-import com.zildeus.book_store.config.jwt.JWTTokenGenerator;
 import com.zildeus.book_store.dto.AuthResponseDto;
 import com.zildeus.book_store.dto.TokenType;
 import com.zildeus.book_store.dto.UserRegistrationRequest;
@@ -28,7 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final ApplicationUserRepository repository;
-    private final JWTTokenGenerator tokenGenerator;
+    private final JwtTokenGenerationService tokenGenerator;
     private final JWTRefreshTokenRepository tokenRepository;
     private final PasswordEncoder encoder;
 

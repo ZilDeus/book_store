@@ -6,18 +6,16 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import com.zildeus.book_store.config.jwt.JWTAccessTokenFilter;
-import com.zildeus.book_store.config.jwt.JWTRefreshTokenFilter;
-import com.zildeus.book_store.config.jwt.JWTUtils;
-import com.zildeus.book_store.config.user.ApplicationUserDetailsService;
+import com.zildeus.book_store.jwt.JWTAccessTokenFilter;
+import com.zildeus.book_store.jwt.JWTRefreshTokenFilter;
+import com.zildeus.book_store.jwt.JWTUtils;
+import com.zildeus.book_store.service.ApplicationUserDetailsService;
 import com.zildeus.book_store.repository.JWTRefreshTokenRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,7 +32,6 @@ import org.springframework.security.oauth2.server.resource.web.access.BearerToke
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.server.ResponseStatusException;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 

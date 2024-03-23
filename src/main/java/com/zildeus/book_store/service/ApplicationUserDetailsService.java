@@ -1,4 +1,4 @@
-package com.zildeus.book_store.config.user;
+package com.zildeus.book_store.service;
 
 import com.zildeus.book_store.repository.ApplicationUserRepository;
 import lombok.RequiredArgsConstructor;

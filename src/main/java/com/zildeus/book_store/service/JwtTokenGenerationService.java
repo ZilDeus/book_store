@@ -1,4 +1,4 @@
-package com.zildeus.book_store.config.jwt;
+package com.zildeus.book_store.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class JWTTokenGenerator {
+public class JwtTokenGenerationService {
     private final JwtEncoder encoder;
     public String GenerateAccessToken(Authentication authentication) {
         String permissions = GetUserPermissionFromRoles(GetUserRoles(authentication));

@@ -1,6 +1,5 @@
-package com.zildeus.book_store.config.jwt;
+package com.zildeus.book_store.jwt;
 
-import com.zildeus.book_store.config.user.ApplicationUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
