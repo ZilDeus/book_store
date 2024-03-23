@@ -1,31 +1,33 @@
 package com.zildeus.book_store.config.application;
 
-import com.zildeus.book_store.model.Author;
-import com.zildeus.book_store.model.Book;
-import com.zildeus.book_store.model.Review;
+import com.zildeus.book_store.model.*;
+import com.zildeus.book_store.repository.ApplicationUserRepository;
 import com.zildeus.book_store.repository.AuthorRepository;
 import com.zildeus.book_store.repository.BookRepositroy;
 import com.zildeus.book_store.repository.ReviewRepository;
+import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class StoreInitializer implements CommandLineRunner {
     Boolean start = true;
-    @Autowired
-    private  AuthorRepository authorRepository;
-    @Autowired
-    private BookRepositroy bookRepositroy;
-    @Autowired
-    private ReviewRepository reviewRepository;
+    private final AuthorRepository authorRepository;
+    private final BookRepositroy bookRepositroy;
+    private final ReviewRepository reviewRepository;
+    private final ApplicationUserRepository userRepository;
+    private final PasswordEncoder encoder;
     public record FakeAuthors(String name, Integer birthYear, String location){ }
+    public record FakeUser(String name, String password, String email, List<UserRole> roles){ }
     public record FakeBook(String title, String genre, Integer publishYear, Float price, Integer authorId){}
-    public record FakeReview(String review, Integer rating,Integer bookId){}
+    public record FakeReview(String review, Integer rating,Integer bookId,Integer reviewer){}
     @Override
     //TODO: ENTER DUMB DATA
     public void run(String... args) throws Exception {
@@ -47,16 +49,42 @@ public class StoreInitializer implements CommandLineRunner {
             book.setAuthor(authors.get(b.authorId%authors.size()));
             return book;
         }).toList();
+        List<ApplicationUser> users = GenerateFakeUsers(50).stream().map(u->{
+            ApplicationUser user = new ApplicationUser();
+            user.setUsername(u.name());
+            user.setPassword(encoder.encode(u.password()));
+            user.setEmail(u.email());
+            user.setRoles(u.roles());
+            user.setBalance(0.0f);
+            return user;
+        }).toList();
         List<Review> reviews =  GenerateFakeReviews(180).stream().map(r-> {
             Review review = new Review();
             review.setReview(r.review);
             review.setRating(r.rating);
             review.setBook(books.get(r.bookId%books.size()));
+            review.setReviewer(users.get(r.reviewer%users.size()));
             return review;
         }).toList();
         authorRepository.saveAllAndFlush(authors);
         bookRepositroy.saveAllAndFlush(books);
+        userRepository.saveAllAndFlush(users);
         reviewRepository.saveAllAndFlush(reviews);
+    }
+    public List<FakeUser> GenerateFakeUsers(int limit) throws Exception {
+        List<FakeUser> users = new ArrayList<>();
+        Faker faker = new Faker();
+        while (--limit>=0){
+            users.add(
+                    new FakeUser(
+                            faker.text().text(4,8),
+                            faker.internet().password(4,8),
+                            faker.internet().emailAddress(),
+                            faker.number().numberBetween(0,10)==1?List.of(UserRole.Moderator,UserRole.Reader):List.of(UserRole.Reader)
+                    )
+            );
+        }
+        return users;
     }
     public List<FakeReview> GenerateFakeReviews(int limit) throws Exception {
         List<FakeReview> reviews = new ArrayList<>();
@@ -65,7 +93,8 @@ public class StoreInitializer implements CommandLineRunner {
             reviews.add(
                     new FakeReview(faker.text().text(0,30)
                             ,faker.number().numberBetween(0,10)
-                            ,faker.number().positive()
+                            ,faker.number().positive(),
+                            faker.number().positive()
                     )
             );
         }
