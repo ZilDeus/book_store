@@ -3,9 +3,8 @@ package com.zildeus.book_store.service;
 import com.zildeus.book_store.dto.AuthorDto;
 import com.zildeus.book_store.exceptions.DuplicateResourceException;
 import com.zildeus.book_store.exceptions.ResourceNotFoundException;
-import com.zildeus.book_store.mapper.IMapper;
+import com.zildeus.book_store.mapper.Mapper;
 import com.zildeus.book_store.model.Author;
-import com.zildeus.book_store.model.Book;
 import com.zildeus.book_store.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthorService {
     private final AuthorRepository repository;
-    private final IMapper mapper;
+    private final Mapper mapper;
 
     public void RegisterAuthor(AuthorDto registrationRequest)
     {

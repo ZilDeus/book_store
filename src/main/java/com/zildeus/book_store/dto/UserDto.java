@@ -1,12 +1,13 @@
 package com.zildeus.book_store.dto;
 
-import com.zildeus.book_store.model.UserType;
-import lombok.Builder;
+import com.zildeus.book_store.model.UserRole;
+
+import java.util.List;
 
 public record UserDto(
         String username,
         String email,
-        UserType userType,
+        List<UserRole> userRoles,
         Float balance
 ) {
 }

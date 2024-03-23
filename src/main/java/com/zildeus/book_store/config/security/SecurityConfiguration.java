@@ -9,13 +9,15 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.zildeus.book_store.config.jwt.JWTAccessTokenFilter;
 import com.zildeus.book_store.config.jwt.JWTRefreshTokenFilter;
 import com.zildeus.book_store.config.jwt.JWTUtils;
-import com.zildeus.book_store.config.user.UserDetailsService;
+import com.zildeus.book_store.config.user.ApplicationUserDetailsService;
+import com.zildeus.book_store.repository.JWTRefreshTokenRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -32,6 +34,7 @@ import org.springframework.security.oauth2.server.resource.web.access.BearerToke
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -41,34 +44,21 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final UserDetailsService userDetailsService;
-    private final JWTUtils jwtUtils;
+    private final ApplicationUserDetailsService applicationUserDetailsService;
+    private final JWTRefreshTokenRepository refreshTokenRepository;
     private final RsaKeyPair rsaKeyPair;
+
+
     @Order(1)
-    @Bean
-    SecurityFilterChain signInFilterChain(HttpSecurity http) throws Exception{
-        return http.securityMatcher(new AntPathRequestMatcher("/sign-in/**"))
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth->auth.anyRequest().authenticated())
-                .userDetailsService(userDetailsService)
-                .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(e
-                        ->  e.authenticationEntryPoint((request, response, authException)
-                        ->  response.sendError(HttpServletResponse.SC_UNAUTHORIZED,authException.getMessage()))
-                )
-                .httpBasic(withDefaults())
-                .build();
-    }
-    @Order(2)
     @Bean
     SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception{
         return http
-                .securityMatcher(new AntPathRequestMatcher("/api/**"))
+                .securityMatcher(new AntPathRequestMatcher("/api/user/**"))
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((auth)->auth.anyRequest().authenticated())
                 .oauth2ResourceServer(auth2->auth2.jwt(withDefaults()))
-                .addFilterBefore(new JWTAccessTokenFilter(jwtDecoder(),jwtUtils,userDetailsService), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JWTAccessTokenFilter(jwtUtils()), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement((session)->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> {
                     ex.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint());
@@ -77,15 +67,58 @@ public class SecurityConfiguration {
                 .httpBasic(withDefaults())
                 .build();
     }
-    @Order(3)
+    @Order(2)
+    @Bean
+    SecurityFilterChain publicApiSecurityFilterChain(HttpSecurity http) throws Exception{
+        return http
+                .securityMatcher(new AntPathRequestMatcher("/api/**"))
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests((auth)->auth.anyRequest().permitAll())
+                .httpBasic(withDefaults())
+                .build();
+    }
+    @Bean
+    SecurityFilterChain signInFilterChain(HttpSecurity http) throws Exception{
+        return http.securityMatcher(new AntPathRequestMatcher("/auth/sign-in/**"))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth->auth.anyRequest().authenticated())
+                .userDetailsService(applicationUserDetailsService)
+                .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(e
+                        ->  e.authenticationEntryPoint((request, response, authException)
+                        ->  response.sendError(HttpServletResponse.SC_UNAUTHORIZED,authException.getMessage()))
+                )
+                .httpBasic(withDefaults())
+                .build();
+    }
+    @Bean
+    SecurityFilterChain RefreshTokenFilterChain(HttpSecurity http) throws Exception{
+        return http.securityMatcher(new AntPathRequestMatcher("/auth/token/**"))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth->auth.anyRequest().authenticated())
+                .userDetailsService(applicationUserDetailsService)
+                .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(new JWTRefreshTokenFilter(jwtUtils()), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(e
+                        ->  e.authenticationEntryPoint((request, response, authException)
+                        ->  response.sendError(HttpServletResponse.SC_UNAUTHORIZED,authException.getMessage()))
+                )
+                .httpBasic(withDefaults())
+                .build();
+    }
+    @Order(4)
     @Bean
     SecurityFilterChain signUpFilterChain(HttpSecurity http) throws  Exception{
-        return http.securityMatcher(new AntPathRequestMatcher("sign-up/**"))
+        return http.securityMatcher(new AntPathRequestMatcher("/auth/sign-up/**"))
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((auth->auth.anyRequest().permitAll()))
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
+    }
+    JWTUtils jwtUtils(){
+        return new JWTUtils(refreshTokenRepository,applicationUserDetailsService,jwtDecoder());
     }
     @Bean
     PasswordEncoder passwordEncoder(){

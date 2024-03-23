@@ -4,7 +4,7 @@ import com.zildeus.book_store.dto.BookDto;
 import com.zildeus.book_store.dto.BookRegistrationRequest;
 import com.zildeus.book_store.exceptions.DuplicateResourceException;
 import com.zildeus.book_store.exceptions.ResourceNotFoundException;
-import com.zildeus.book_store.mapper.IMapper;
+import com.zildeus.book_store.mapper.Mapper;
 import com.zildeus.book_store.model.Author;
 import com.zildeus.book_store.model.Book;
 import com.zildeus.book_store.repository.BookRepositroy;
@@ -20,7 +20,7 @@ public class BookService {
     private final BookRepositroy repository;
     private final AuthorService authorService;
     private final ReviewRepository reviewRepository;
-    private final IMapper mapper;
+    private final Mapper mapper;
     public List<BookDto> GetBooks(){
         return repository.findAll()
                 .stream().map(mapper::BookDtoFromBook).toList();

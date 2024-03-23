@@ -8,7 +8,7 @@ import com.zildeus.book_store.exceptions.DuplicateResourceException;
 import com.zildeus.book_store.exceptions.ResourceNotFoundException;
 import com.zildeus.book_store.model.ApplicationUser;
 import com.zildeus.book_store.model.JWTRefreshToken;
-import com.zildeus.book_store.model.UserType;
+import com.zildeus.book_store.model.UserRole;
 import com.zildeus.book_store.repository.ApplicationUserRepository;
 import com.zildeus.book_store.repository.JWTRefreshTokenRepository;
 import jakarta.servlet.http.Cookie;
@@ -32,20 +32,20 @@ public class AuthenticationService {
     private final JWTRefreshTokenRepository tokenRepository;
     private final PasswordEncoder encoder;
 
-    private Authentication CreateAuthentication(ApplicationUser userInfoEntity) {
-        String username = userInfoEntity.getUsername();
-        String password = userInfoEntity.getPassword();
-        String type = userInfoEntity.getType().toString();
+    private Authentication CreateAuthentication(ApplicationUser applicationUser) {
+        String username = applicationUser.getUsername();
+        String password = applicationUser.getPassword();
+        String type = applicationUser.getRoles().toString();
         return new UsernamePasswordAuthenticationToken(username, password, List.of(new SimpleGrantedAuthority(type)));
     }
-    private void SaveRefreshToken(ApplicationUser user,String token){
+    private void RegisterRefreshToken(ApplicationUser user, String token){
         JWTRefreshToken refreshToken = new JWTRefreshToken();
         refreshToken.setRefreshToken(token);
         refreshToken.setRevoked(false);
         refreshToken.setOwner(user);
         tokenRepository.save(refreshToken);
     }
-    private void CreateRefreshTokenCookie(HttpServletResponse response,String refreshToken)
+    private void WriteAccessTokenToCookies(HttpServletResponse response, String refreshToken)
     {
         Cookie cookie = new Cookie("refresh_token",refreshToken);
         cookie.setHttpOnly(true);
@@ -53,7 +53,7 @@ public class AuthenticationService {
         cookie.setMaxAge(15*24*60*60);
         response.addCookie(cookie);
     }
-    public AuthResponseDto RegisterNewUser(UserRegistrationRequest registrationRequest, HttpServletResponse response){
+    public String RegisterNewUser(UserRegistrationRequest registrationRequest, HttpServletResponse response){
         try {
             if(repository.findByUsername(registrationRequest.username()).isPresent())
                 throw new DuplicateResourceException("user already exists");
@@ -61,44 +61,57 @@ public class AuthenticationService {
             user.setBalance(0.0f);
             user.setUsername(registrationRequest.username());
             user.setEmail(registrationRequest.email());
-            user.setType(UserType.valueOf(registrationRequest.userType()));
+            user.setRoles(registrationRequest.userRoles().stream().map(UserRole::valueOf).toList());
             user.setPassword(encoder.encode(registrationRequest.password()));
             var authentication = CreateAuthentication(user);
             String accessToken = tokenGenerator.GenerateAccessToken(authentication);
             String refreshToken = tokenGenerator.GenerateRefreshToken(authentication);
             repository.save(user);
-            SaveRefreshToken(user,refreshToken);
-            CreateRefreshTokenCookie(response,refreshToken);
-            return new AuthResponseDto(accessToken,
-                    5*60,
-                    TokenType.Bearer,
-                    user.getUsername()
-            );
+            RegisterRefreshToken(user,refreshToken);
+            return "account Successfully created";
         }
         catch (Exception e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
         }
     }
+    public AuthResponseDto AuthenticateUser(Authentication authentication, HttpServletResponse response) {
+        ApplicationUser user = repository.findByUsername(authentication.getName())
+                .orElseThrow(()->
+                        new ResourceNotFoundException("USER NOT FOUND!")
+                );
+        String accessToken = tokenGenerator.GenerateAccessToken(authentication);
+        String refreshToken = tokenGenerator.GenerateRefreshToken(authentication);
+        RegisterRefreshToken(user,refreshToken);
+        WriteAccessTokenToCookies(response,refreshToken);
+        return new AuthResponseDto(accessToken,
+                15*60,
+                TokenType.Bearer,
+                user.getUsername()
+        );
+    }
 
-    public AuthResponseDto GetAccessTokenFromRefreshToken(Authentication authentication, HttpServletResponse response) {
-        try {
-            ApplicationUser user = repository.findByUsername(authentication.getName())
-                    .orElseThrow(()->
-                            new ResourceNotFoundException("USER NOT FOUND!")
-                    );
+    public AuthResponseDto GetAccessTokenByRefreshToken(String authorizationHeader){
 
-            String accessToken = tokenGenerator.GenerateAccessToken(authentication);
-            String refreshToken = tokenGenerator.GenerateRefreshToken(authentication);
-            SaveRefreshToken(user,refreshToken);
-            CreateRefreshTokenCookie(response,refreshToken);
-            return new AuthResponseDto(accessToken,
-                    5*60,
-                    TokenType.Bearer,
-                    user.getUsername()
-            );
+        if(!authorizationHeader.startsWith(TokenType.Bearer.name()))
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE,"authorization header not of type bearer");
         }
-        catch (Exception e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
-        }
+        String refreshToken = authorizationHeader.substring(7);
+
+        JWTRefreshToken token = tokenRepository.findByRefreshToken(refreshToken)
+                .filter(t->!t.getRevoked())
+                .orElseThrow(()->
+                        new ResponseStatusException(HttpStatus.UNAUTHORIZED,"refresh token is either revoked or doesn't exist")
+                );
+
+        ApplicationUser user = token.getOwner();
+        Authentication authentication = CreateAuthentication(user);
+        String accessToken = tokenGenerator.GenerateAccessToken(authentication);
+        return new AuthResponseDto(
+                accessToken,
+                15*60,
+                TokenType.Bearer,
+                user.getUsername()
+        );
     }
 }

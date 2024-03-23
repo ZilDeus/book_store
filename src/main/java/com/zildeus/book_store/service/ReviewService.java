@@ -1,14 +1,9 @@
 package com.zildeus.book_store.service;
 
 import com.zildeus.book_store.dto.ReviewDto;
-import com.zildeus.book_store.exceptions.ResourceNotFoundException;
-import com.zildeus.book_store.mapper.IMapper;
-import com.zildeus.book_store.model.ApplicationUser;
-import com.zildeus.book_store.model.Author;
+import com.zildeus.book_store.mapper.Mapper;
 import com.zildeus.book_store.model.Book;
 import com.zildeus.book_store.model.Review;
-import com.zildeus.book_store.repository.ApplicationUserRepository;
-import com.zildeus.book_store.repository.BookRepositroy;
 import com.zildeus.book_store.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +15,7 @@ import java.util.List;
 public class ReviewService {
     private final ReviewRepository repository;
     private final BookService bookService;
-    private final IMapper mapper;
+    private final Mapper mapper;
 
     public List<ReviewDto> GetReviews(){
         return repository.findAll()

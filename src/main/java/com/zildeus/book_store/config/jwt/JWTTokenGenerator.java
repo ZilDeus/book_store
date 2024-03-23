@@ -24,7 +24,7 @@ public class JWTTokenGenerator {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("zildeus")
                 .issuedAt(Instant.now())
-                .expiresAt(Instant.now().plus(5 , ChronoUnit.MINUTES))
+                .expiresAt(Instant.now().plus(15 , ChronoUnit.MINUTES))
                 .subject(authentication.getName())
                 .claim("scope", permissions)
                 .build();

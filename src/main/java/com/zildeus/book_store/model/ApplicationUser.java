@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,11 +45,14 @@ public class ApplicationUser implements UserDetails {
 
     @Enumerated(value = EnumType.STRING)
     @Column(name = "type",nullable = false)
-    private UserType type;
+    private List<UserRole> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(type.toString()));
+        return getRoles()
+                .stream()
+                .map(role->new SimpleGrantedAuthority(role.name()))
+                .toList();
     }
 
     @Override
