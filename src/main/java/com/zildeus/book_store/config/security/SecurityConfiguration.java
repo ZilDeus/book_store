@@ -50,7 +50,7 @@ public class SecurityConfiguration {
     @Bean
     SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception{
         return http
-                .securityMatcher(new AntPathRequestMatcher("/api/user/**"))
+                .securityMatcher(new AntPathRequestMatcher("/api/secure/**"))
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((auth)->auth.anyRequest().authenticated())
