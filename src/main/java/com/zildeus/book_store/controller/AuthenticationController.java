@@ -27,13 +27,13 @@ public class AuthenticationController {
     }
     @PostMapping("sign-up")
     ResponseEntity<?> SignUp(@RequestBody UserRegistrationRequest registrationRequest,
-                             BindingResult bindingResult, HttpServletResponse response){
+                             BindingResult bindingResult){
         if(bindingResult.hasErrors()) {
             return ResponseEntity.badRequest()
                     .body(bindingResult.getAllErrors()
                             .stream().map(DefaultMessageSourceResolvable::new)
                             .toList());
         }
-        return ResponseEntity.ok().body(authService.RegisterNewUser(registrationRequest,response));
+        return ResponseEntity.ok().body(authService.RegisterNewUser(registrationRequest));
     }
 }

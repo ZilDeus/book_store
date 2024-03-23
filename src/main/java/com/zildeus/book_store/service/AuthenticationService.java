@@ -53,7 +53,7 @@ public class AuthenticationService {
         cookie.setMaxAge(15*24*60*60);
         response.addCookie(cookie);
     }
-    public String RegisterNewUser(UserRegistrationRequest registrationRequest, HttpServletResponse response){
+    public String RegisterNewUser(UserRegistrationRequest registrationRequest){
         try {
             if(repository.findByUsername(registrationRequest.username()).isPresent())
                 throw new DuplicateResourceException("user already exists");
@@ -64,10 +64,7 @@ public class AuthenticationService {
             user.setRoles(registrationRequest.userRoles().stream().map(UserRole::valueOf).toList());
             user.setPassword(encoder.encode(registrationRequest.password()));
             var authentication = CreateAuthentication(user);
-            String accessToken = tokenGenerator.GenerateAccessToken(authentication);
-            String refreshToken = tokenGenerator.GenerateRefreshToken(authentication);
             repository.save(user);
-            RegisterRefreshToken(user,refreshToken);
             return "account Successfully created";
         }
         catch (Exception e){
