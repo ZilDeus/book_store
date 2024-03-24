@@ -1,5 +1,6 @@
 package com.zildeus.book_store.config.application;
 
+import com.zildeus.book_store.config.user.UserRole;
 import com.zildeus.book_store.model.*;
 import com.zildeus.book_store.repository.ApplicationUserRepository;
 import com.zildeus.book_store.repository.AuthorRepository;
@@ -7,7 +8,6 @@ import com.zildeus.book_store.repository.BookRepositroy;
 import com.zildeus.book_store.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;

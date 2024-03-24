@@ -1,6 +1,7 @@
 package com.zildeus.book_store.dto;
 
-import com.zildeus.book_store.model.UserRole;
+
+import com.zildeus.book_store.config.user.UserRole;
 
 import java.util.List;
 

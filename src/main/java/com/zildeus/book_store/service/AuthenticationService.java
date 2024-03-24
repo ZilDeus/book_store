@@ -1,5 +1,6 @@
 package com.zildeus.book_store.service;
 
+import com.zildeus.book_store.config.user.UserRole;
 import com.zildeus.book_store.dto.AuthResponseDto;
 import com.zildeus.book_store.dto.TokenType;
 import com.zildeus.book_store.dto.UserRegistrationRequest;
@@ -7,7 +8,6 @@ import com.zildeus.book_store.exceptions.DuplicateResourceException;
 import com.zildeus.book_store.exceptions.ResourceNotFoundException;
 import com.zildeus.book_store.model.ApplicationUser;
 import com.zildeus.book_store.model.JWTRefreshToken;
-import com.zildeus.book_store.model.UserRole;
 import com.zildeus.book_store.repository.ApplicationUserRepository;
 import com.zildeus.book_store.repository.JWTRefreshTokenRepository;
 import jakarta.servlet.http.Cookie;
@@ -62,7 +62,7 @@ public class AuthenticationService {
             user.setEmail(registrationRequest.email());
             user.setRoles(registrationRequest.userRoles().stream().map(UserRole::valueOf).toList());
             user.setPassword(encoder.encode(registrationRequest.password()));
-            var authentication = CreateAuthentication(user);
+            CreateAuthentication(user);
             repository.save(user);
             return "account Successfully created";
         }
@@ -87,7 +87,6 @@ public class AuthenticationService {
     }
 
     public AuthResponseDto GetAccessTokenByRefreshToken(String authorizationHeader){
-
         if(!authorizationHeader.startsWith(TokenType.Bearer.name()))
         {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE,"authorization header not of type bearer");
@@ -109,5 +108,19 @@ public class AuthenticationService {
                 TokenType.Bearer,
                 user.getUsername()
         );
+    }
+
+    public void RevokeRefreshToken(String authorizationHeader) {
+        if(!authorizationHeader.startsWith(TokenType.Bearer.name()))
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE,"authorization header not of type bearer");
+        String refreshToken = authorizationHeader.substring(7);
+        JWTRefreshToken token = tokenRepository.findByRefreshToken(refreshToken)
+                .filter(t->!t.getRevoked())
+                .orElseThrow(()->
+                        new ResponseStatusException(HttpStatus.UNAUTHORIZED,"refresh token is either revoked or doesn't exist")
+                );
+        token.setRevoked(true);
+        tokenRepository.save(token);
+        //I think I should now delete all user-owned tokens,but it may be worth it keep them for creating a log of every login attempt
     }
 }

@@ -1,8 +1,11 @@
 package com.zildeus.book_store.service;
 
+import com.zildeus.book_store.config.user.UserRole;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -10,9 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,13 +48,10 @@ public class JwtTokenGenerationService {
                 .collect(Collectors.joining(" "));
     }
     private String GetUserPermissionFromRoles(String roles){
-        Set<String> perms = new HashSet<>();
-        if (roles.contains("Reader"))
-            perms.addAll(List.of("READ","BUY","REPORT","REVIEW"));
-        if (roles.contains("Moderator"))
-            perms.addAll(List.of("APPROVE_REPORT","BLOCK","POST"));
-        if (roles.contains("Admin"))
-            perms.addAll(List.of("ADD_BALANCE","DELETE","POST"));
-        return String.join(" ",perms);
+        List<String> perms = new ArrayList<>();
+        Arrays.stream(roles.split(" ")).forEach(role->{
+            perms.addAll(UserRole.getRolePermissions(UserRole.valueOf(role)));
+        });
+        return String.join(" ", perms);
     }
 }

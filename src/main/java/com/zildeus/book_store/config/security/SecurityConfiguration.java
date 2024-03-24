@@ -104,7 +104,21 @@ public class SecurityConfiguration {
                 .httpBasic(withDefaults())
                 .build();
     }
-    @Order(4)
+    @Bean
+    SecurityFilterChain LogOutUser(HttpSecurity http) throws Exception{
+        return http.securityMatcher(new AntPathRequestMatcher("/auth/log-out/**"))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth->auth.anyRequest().authenticated())
+                .userDetailsService(applicationUserDetailsService)
+                .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(new JWTRefreshTokenFilter(jwtUtils()), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(e
+                        ->  e.authenticationEntryPoint((request, response, authException)
+                        ->  response.sendError(HttpServletResponse.SC_UNAUTHORIZED,authException.getMessage()))
+                )
+                .httpBasic(withDefaults())
+                .build();
+    }
     @Bean
     SecurityFilterChain signUpFilterChain(HttpSecurity http) throws  Exception{
         return http.securityMatcher(new AntPathRequestMatcher("/auth/sign-up/**"))
