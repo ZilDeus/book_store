@@ -4,6 +4,7 @@ import com.zildeus.book_store.dto.UserDto;
 import com.zildeus.book_store.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,5 +18,9 @@ public class ApplicationUsersController {
     @GetMapping
     List<UserDto> GetAllUsers(){
         return service.GetAllUsers();
+    }
+    @GetMapping("/{username}")
+    UserDto GetUserByUsername(@PathVariable String username){
+        return service.GetUser(username);
     }
 }

@@ -47,6 +47,12 @@ public class ApplicationUser implements UserDetails {
     @Column(name = "type",nullable = false)
     private List<UserRole> roles;
 
+    @OneToMany(mappedBy = "reviewer")
+    private List<Review> reviews;
+
+    @OneToMany(mappedBy = "buyer")
+    private List<UserBooks> books;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return getRoles()
@@ -59,17 +65,14 @@ public class ApplicationUser implements UserDetails {
     public boolean isAccountNonExpired() {
         return true;
     }
-
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
-
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
-
     @Override
     public boolean isEnabled() {
         return true;

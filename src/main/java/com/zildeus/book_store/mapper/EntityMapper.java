@@ -14,7 +14,7 @@ public class EntityMapper implements Mapper {
     private final ReviewRepository reviewRepository;
     @Override
     public BookDto BookDtoFromBook(Book book) {
-        return new BookDto(book.getTitle(), book.getGenre(),
+        return new BookDto(book.getId(),book.getTitle(), book.getGenre(),
                 book.getPublishYear(), book.getUploadDate()
                 ,book.getAuthor().getName(),
                 book.getPrice(),
@@ -38,8 +38,10 @@ public class EntityMapper implements Mapper {
     public UserDto UserDtoFromUser(ApplicationUser user) {
         return new UserDto(
                 user.getUsername(), user.getEmail(),
-                user.getRoles(), user.getBalance()
-        );
+                user.getBalance(),user.getRoles(),
+                user.getBooks().stream().map(book->BookDtoFromBook(book.getBook())).toList(),
+                user.getReviews().stream().map(this::ReviewDtoFromReview).toList()
+                );
     }
 
     @Override
