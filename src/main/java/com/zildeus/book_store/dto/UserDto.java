@@ -7,7 +7,9 @@ import java.util.List;
 public record UserDto(
         String username,
         String email,
+        Float balance,
         List<UserRole> userRoles,
-        Float balance
+        List<BookDto> books,
+        List<ReviewDto> reviews
 ) {
 }

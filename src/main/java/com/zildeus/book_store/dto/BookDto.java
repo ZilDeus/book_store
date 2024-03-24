@@ -5,6 +5,7 @@ import com.zildeus.book_store.model.Book;
 import java.sql.Timestamp;
 
 public record BookDto(
+        Long id,
         String title,
         String genre,
         Integer published_at,
