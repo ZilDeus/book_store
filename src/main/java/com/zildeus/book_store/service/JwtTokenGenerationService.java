@@ -20,8 +20,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class JwtTokenGenerationService {
     private final JwtEncoder encoder;
+    private final UserRolesService rolesService;
     public String GenerateAccessToken(Authentication authentication) {
-        String permissions = GetUserPermissionFromRoles(GetUserRoles(authentication));
+        String permissions = rolesService.GetUserPermissionsFromAuthentication(authentication);
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("zildeus")
                 .issuedAt(Instant.now())
@@ -41,17 +42,5 @@ public class JwtTokenGenerationService {
                 .build();
 
         return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-    }
-    private String GetUserRoles(Authentication authentication){
-        return authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(" "));
-    }
-    private String GetUserPermissionFromRoles(String roles){
-        List<String> perms = new ArrayList<>();
-        Arrays.stream(roles.split(" ")).forEach(role->{
-            perms.addAll(UserRole.getRolePermissions(UserRole.valueOf(role)));
-        });
-        return String.join(" ", perms);
     }
 }

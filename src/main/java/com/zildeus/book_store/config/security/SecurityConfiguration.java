@@ -94,7 +94,7 @@ public class SecurityConfiguration {
         return http.securityMatcher(new AntPathRequestMatcher("/auth/token/**"))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth->auth.anyRequest().authenticated())
-                .userDetailsService(applicationUserDetailsService)
+                .oauth2ResourceServer(auth2->auth2.jwt(withDefaults()))
                 .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new JWTRefreshTokenFilter(jwtUtils()), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(e
@@ -109,7 +109,7 @@ public class SecurityConfiguration {
         return http.securityMatcher(new AntPathRequestMatcher("/auth/log-out/**"))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth->auth.anyRequest().authenticated())
-                .userDetailsService(applicationUserDetailsService)
+                .oauth2ResourceServer(auth2->auth2.jwt(withDefaults()))
                 .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new JWTRefreshTokenFilter(jwtUtils()), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(e

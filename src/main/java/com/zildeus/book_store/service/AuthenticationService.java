@@ -34,8 +34,11 @@ public class AuthenticationService {
     private Authentication CreateAuthentication(ApplicationUser applicationUser) {
         String username = applicationUser.getUsername();
         String password = applicationUser.getPassword();
-        String type = applicationUser.getRoles().toString();
-        return new UsernamePasswordAuthenticationToken(username, password, List.of(new SimpleGrantedAuthority(type)));
+        List<SimpleGrantedAuthority> authorities = applicationUser.getRoles()
+                .stream()
+                .map(role->new SimpleGrantedAuthority(role.toString()))
+                .toList();
+        return new UsernamePasswordAuthenticationToken(username, password,authorities);
     }
     private void RegisterRefreshToken(ApplicationUser user, String token){
         JWTRefreshToken refreshToken = new JWTRefreshToken();
@@ -62,7 +65,6 @@ public class AuthenticationService {
             user.setEmail(registrationRequest.email());
             user.setRoles(registrationRequest.userRoles().stream().map(UserRole::valueOf).toList());
             user.setPassword(encoder.encode(registrationRequest.password()));
-            CreateAuthentication(user);
             repository.save(user);
             return "account Successfully created";
         }
